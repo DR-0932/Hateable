@@ -1,0 +1,13 @@
+{
+  "name": "@AntColony/-library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
