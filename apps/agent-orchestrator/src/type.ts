@@ -1,6 +1,4 @@
-import {GoogleGenAI, type FunctionDeclaration} from '@google/genai';
-
-
+import {GoogleGenAI, type FunctionDeclaration,Type} from '@google/genai';
 
 export const writeFileDeclaration:FunctionDeclaration = {
     name:"wrtieFile",
@@ -15,28 +13,28 @@ export const writeFileDeclaration:FunctionDeclaration = {
     },
 };
 
-
-export const readFileDeclaration:FunctionDeclaration = {
-    name:"readFile",
-    description:"Read the content of a file at the given path",
-    parametersJsonSchema:{
-        type:"object",
-        properties:{
-            filePath:{type:"string"}
-        },
-        required:["filePath"],
+export const readFileDeclaration = {
+  name: 'readFile',
+  description: 'Read the contents of a file in the project.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      path: { type: Type.STRING, description: 'Path relative to the project root.' },
     },
+    required: ['path'],
+  },
 };
 
-export const runCommandDeclaration:FunctionDeclaration={
-    name:"runCommand",
-    description:"Run a shell command in the project directory",
-    parametersJsonSchema:{
-        type:"object",
-        properties:{
-            command:{type:"string"},
-        },
-        required:["command"],
+export const runCommandDeclaration = {
+  name: 'runCommand',
+  description: 'Run a shell command in the project directory (e.g. npm install, npm run build).',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      command: { type: Type.STRING, description: 'The shell command to run.' },
+      timeoutMs: { type: Type.NUMBER, description: 'Optional timeout in milliseconds.' },
     },
+    required: ['command'],
+  },
 };
 
