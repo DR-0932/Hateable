@@ -1,13 +1,183 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "..generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  name      String
+  password  String
+  avatarUrl String?
+
+  credits   Int      @default(100)
+  plan      Plan     @default(FREE)
+
+  projects  Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  slug        String   @unique
+
+  visibility  Visibility @default(PRIVATE)
+
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
+
+  files       File[]
+  messages    Message[]
+  deployments Deployment[]
+  sandbox     Sandbox?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+enum Visibility {
+  PRIVATE
+  PUBLIC
+  UNLISTED
+}
+
+model Message {
+  id        String      @id @default(uuid())
+  role      MessageRole
+  content   String      @db.Text
+
+  fileDiffs FileDiff[]
+
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+
+  createdAt DateTime    @default(now())
+
+  @@index([projectId])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model File {
+  id        String   @id @default(uuid())
+  path      String
+  content   String   @db.Text
+  language  String?
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, path])
+  @@index([projectId])
+  @@map("files")
+}
+
+model FileDiff {
+  id         String     @id @default(uuid())
+  path       String
+  action     DiffAction
+  before     String?    @db.Text
+  after      String?    @db.Text
+
+  message    Message    @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId  String
+
+  createdAt  DateTime   @default(now())
+
+  @@index([messageId])
+  @@map("file_diffs")
+}
+
+enum DiffAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model Deployment {
+  id        String           @id @default(uuid())
+  url       String?
+  status    DeploymentStatus @default(PENDING)
+
+  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([projectId])
+  @@map("deployments")
+}
+
+enum DeploymentStatus {
+  PENDING
+  BUILDING
+  READY
+  FAILED
+}
+
+model Sandbox {
+  id            String          @id @default(uuid())
+  provider      SandboxProvider @default(E2B)
+  externalId    String
+  status        SandboxStatus   @default(STARTING)
+
+  previewUrl    String?
+  port          Int?
+
+  lastPingedAt  DateTime?
+
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String          @unique
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([projectId])
+  @@map("sandboxes")
+}
+
+enum SandboxProvider {
+  E2B
+  WEBCONTAINER
+  DOCKER
+  MODAL
+}
+
+enum SandboxStatus {
+  STARTING
+  RUNNING
+  IDLE
+  STOPPED
+  ERROR
 }
