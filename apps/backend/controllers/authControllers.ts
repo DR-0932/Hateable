@@ -1,75 +1,67 @@
-import type { Request,Response } from "express";
-import { login_schema, signup_schema } from "../../zod_schema";
-import { prisma } from "../../db/lib/prisma";
-
+import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import "dotenv/config"
+import bcrypt from "bcrypt";
+import "dotenv/config";
+import { signupSchema, loginSchema } from "@antcolony/zod";
+import { prisma } from "@antcolony/db"; // adjust to your actual prisma client export
 
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
-const JWT_SECRET = "aaj_mera-mon_hai"
-
-
-export async function signup(req:Request,res:Response):Promise<void>{
-    const data = signup_schema.safeParse(req.body);
-    if(!data.success){
-        res.status(401).json({error:"invalid data"})
-        return
+export async function signup(req: Request, res: Response): Promise<void> {
+    const parsed = signupSchema.safeParse(req.body);
+    if (!parsed.success) {
+        res.status(400).json({ error: "invalid data" });
+        return;
     }
-    const {username,name,password,email} = data
+    const { username, name, password, email } = parsed.data;
 
-    try{
-        const hash_password = await Bun.password.hash(password,{
-            algorithm:"bcrypt",
-        })
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await prisma.user.create({
-            data:{
+            data: {
                 username,
-                password:hash_password,
+                password: hashedPassword,
                 name,
-                email
-            }
-        })
-        res.json(200).json({userdata:user})
+                email,
+            },
+        });
 
-    }catch(err){
-        res.status(500).json({error:"internal server error",err})
+        const { password: _, ...safeUser } = user;
+        res.status(200).json({ userdata: safeUser });
+    } catch (err) {
+        res.status(500).json({ error: "internal server error" });
     }
-
 }
 
-
-export async function login(req:Request,res:Response):Promise<void>{
-    const data = login_schema.safeParse(req.body);
-        if(!data.success){
-        res.status(401).json({error:"invalid data"})
-        return
+export async function login(req: Request, res: Response): Promise<void> {
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+        res.status(400).json({ error: "invalid data" });
+        return;
     }
+    const { username, password, email } = parsed.data;
 
-    const {username,password,email} = data;
-
-    try{
+    try {
         const user = await prisma.user.findFirst({
-            where:{
-                username,
-                email
-            }
-        })
-        if(!user){
-            res.status(404).json({error:"user not found"})
-            return
+            where: { username, email },
+        });
+
+        if (!user) {
+            res.status(404).json({ error: "user not found" });
+            return;
         }
 
-        const isMatch =  await Bun.password.verify(password,user?.password)
-        if(!isMatch){
-            res.status(401).json({error:"Invalid username or password"})
-            return
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            res.status(401).json({ error: "Invalid username or password" });
+            return;
         }
 
-        const token = jwt.sign(user,JWT_SECRET,{expiresIn:'1d'})
-        res.status(200).json(token)
-
-    }catch(err){
-        res.status(500).json({error:"internal server error",err})
+        const { password: _, ...safeUser } = user;
+        const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: "1d" });
+        res.status(200).json({ token });
+    } catch (err) {
+        res.status(500).json({ error: "internal server error" });
     }
 }
