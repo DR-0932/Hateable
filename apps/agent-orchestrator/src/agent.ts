@@ -46,7 +46,6 @@ export async function runAgent(sandbox: Sandbox, prompt: string): Promise<AgentR
       return { done: false, text: 'Model returned an empty response.', history };
     }
 
-    // Record the model's own turn before acting on it.
     history.push({ role: 'model', parts });
 
     const functionCallParts = parts.filter((p) => !!p.functionCall);
@@ -76,7 +75,6 @@ export async function runAgent(sandbox: Sandbox, prompt: string): Promise<AgentR
       });
     }
 
-    // Tool results go back in as the next turn so the model can react to them.
     history.push({ role: 'user', parts: functionResponseParts });
   }
 
