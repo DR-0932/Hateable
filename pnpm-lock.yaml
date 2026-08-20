@@ -20,12 +20,18 @@ importers:
 
   apps/agent-orchestrator:
     dependencies:
+      '@antcolony/zod':
+        specifier: workspace:*
+        version: link:../../packages/zod
       '@e2b/code-interpreter':
         specifier: ^2.7.0
         version: 2.7.0
       '@google/genai':
         specifier: ^2.16.0
         version: 2.16.0
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
 
   apps/backend:
     dependencies:
