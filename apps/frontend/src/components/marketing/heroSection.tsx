@@ -1,5 +1,6 @@
 const style = {
-  section: "grid min-h-screen lg:grid-cols-[1fr_380px]",
+  // 1. Changed min-h-screen to h-full so the section expands fully with content
+  section: "grid h-full lg:grid-cols-[1fr_380px]",
   column: "flex flex-col",
 
   red: "bg-[#D33A23] text-white",
@@ -14,7 +15,7 @@ const style = {
   heading: "text-7xl font-bold tracking-tight",
   description: "text-lg",
 
-  drone: "min-h-[80vh] bg-cover bg-center",
+  drone: "min-h-[80vh] bg-cover bg-center bg-white",
 
   news: "grid grid-cols-1 border-t md:grid-cols-3",
   card: "border-r p-6",
@@ -22,8 +23,9 @@ const style = {
   newsTitle: "text-lg font-semibold",
   meta: "mt-4 font-mono text-xs text-gray-400",
 
+  // 2. Updated sidebar to sticky top-0 and h-fit
   sidebar:
-    "sticky top-0 flex h-screen flex-col justify-between border-l border-gray-700 bg-[#4A4E4A] text-white",
+    "sticky top-0 flex h-fit flex-col justify-between border-l border-gray-700 bg-[#4A4E4A] text-white",
 
   sidebarHeader:
     "flex items-start justify-between border-b p-8 border-gray-600",
@@ -79,7 +81,7 @@ export function HeroSection() {
               key={title}
               className={i < 2 ? style.card : style.cardLast}
             >
-              <h3 className={style.newsTitle}>{title}</h3>style.sidebar
+              <h3 className={style.newsTitle}>{title}</h3>
               <p className={style.meta}>
                 {
                   [
