@@ -1,16 +1,21 @@
-import {Sandbox}  from "@e2b/code-interpreter";
+import { Sandbox } from "@e2b/code-interpreter";
+import "dotenv/config";
 
-const sandboxes = new Map<string,Sandbox>();
+export async function createSandboxSession(): Promise<Sandbox> {
+  const apiKey = process.env.E2B_API_KEY;
 
-export async function getSandbox(sandboxId?:string){
-    if(sandboxId && sandboxes.has(sandboxId)){
-        return sandboxes.get(sandboxId)
-    } 
-    const sandbox = sandboxId 
-    ? await Sandbox.connect(sandboxId)
-    : await Sandbox.create({timeoutMs:15*60*1000});
+  if (!apiKey) {
+    throw new Error("E2B_API_KEY is not defined");
+  }
 
-    sandboxes.set(sandbox.sandboxId,sandbox);
-    return sandbox;
+  const sandbox = await Sandbox.create({
+    apiKey: apiKey,
+    timeoutMs: 60_000,
+  });
+
+  return sandbox;
 }
 
+export async function closeSandboxSession(sandbox: Sandbox): Promise<void> {
+  await sandbox.kill();
+}
