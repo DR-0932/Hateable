@@ -1,6 +1,7 @@
 import type {NextFunction, Request,Response} from "express";
 import { enqueuJob,getJob } from "../jobQueue.js";
 import { agentInputSchema } from "@antcolony/zod";
+import { runAgentTask } from "@antcolony/agent-orchestrator";
 
 export async function submitAgentTask(req:Request,res:Response):Promise<void>{
     const parsed = agentInputSchema.safeParse(req.body);
@@ -9,13 +10,17 @@ export async function submitAgentTask(req:Request,res:Response):Promise<void>{
         return;
     }
 
+    const input = parsed.data;
     const userId = req.user!.id;
 
-    const jobId = enqueuJob(userId,async ()=>{
-        throw new Error("not implemented");
-    });
-
-    res.status(202).json({jobId});
+    try{
+        const jobId = enqueuJob(userId,async ()=>{
+            return await runAgentTask(input)
+        });
+        res.status(202).json({jobId});
+    }catch{
+        res.status(500).json({ error: "Failed to enqueue job" });
+    }
 }
 
 export function getAgentTaskStatus(req:Request,res:Response):void{
