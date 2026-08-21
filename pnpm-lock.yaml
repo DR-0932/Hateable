@@ -35,6 +35,9 @@ importers:
 
   apps/backend:
     dependencies:
+      '@antcolony/agent-orchestrator':
+        specifier: workspace:*
+        version: link:../agent-orchestrator
       '@antcolony/db':
         specifier: workspace:*
         version: link:../../packages/db
