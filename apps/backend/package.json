@@ -13,6 +13,7 @@
   "dependencies": {
     "@antcolony/db": "workspace:*",
     "@antcolony/zod": "workspace:*",
+    "@antcolony/agent-orchestrator": "workspace:*",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
