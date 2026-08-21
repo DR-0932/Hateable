@@ -67,6 +67,7 @@ export async function writeFileTool(
       success: true,
       data: { path: filePath, bytesWritten: Buffer.byteLength(content, "utf-8") },
     };
+    
   } catch (error) {
     return {
       success: false,
