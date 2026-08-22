@@ -5,16 +5,19 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "dev": "tsx watch src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@antcolony/agent-orchestrator": "workspace:*",
     "@antcolony/db": "workspace:*",
     "@antcolony/zod": "workspace:*",
-    "@antcolony/agent-orchestrator": "workspace:*",
+    "@types/cors": "^2.8.19",
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "p-queue": "^9.3.3"
@@ -22,6 +25,7 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10"
+    "@types/jsonwebtoken": "^9.0.10",
+    "tsx": "^4.23.12"
   }
 }
